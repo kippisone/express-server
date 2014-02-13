@@ -1,0 +1,23 @@
+{
+  "name": "express-server",
+  "version": "0.0.0",
+  "description": "A easy API server based on express",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "keywords": [
+    "api",
+    "server",
+    "express",
+    "rest",
+    "restful"
+  ],
+  "author": "Andi Heinkelein <andi@noname-media.com> (http://noname-media.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "xqnode-logger": "0.0.2",
+    "express": "~3.4.8",
+    "hbs": "~2.4.0"
+  }
+}
