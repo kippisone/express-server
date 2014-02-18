@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{serverName}} API</title>
+  <link rel="stylesheet" href="express-server/css/styles.css">
+  <meta charset="UTF-8">
+  
+</head>
+
+<body>
+<h1>{{serverName}} API</h1>
+{{#each routes}}
+	<div class="route">
+		{{#if options.version}}
+			<div class="version">{{options.version}}</div>
+		{{/if}}
+		{{#if options.deprecated}}
+			<div class="deprecated">deprecated</div>
+		{{/if}}
+		<div class="method method-{{method}}">{{method}}</div>
+		<div class="path">
+			<a class="restLink" href="{{path}}" target="_blank">{{path}}</a>
+			{{#if options.authentication}}
+				<span class="authentication"></span>
+			{{/if}}
+		</div>
+		<div class="info">{{info}}</div>
+	</div>
+{{/each}}
+</body>
+</html>
