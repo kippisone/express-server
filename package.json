@@ -19,6 +19,7 @@
     "xqnode-logger": "0.0.2",
     "express": "~3.4.8",
     "glob": "~3.2.8",
-    "handlebars": "~2.0.0-alpha.1"
+    "handlebars": "~2.0.0-alpha.1",
+    "async": "~0.2.10"
   }
 }

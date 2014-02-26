@@ -12,7 +12,7 @@ module.exports = function() {
 	var app;
 
 	var ExpressServer = function(conf) {
-		this.conf = conf || {};
+		conf = conf || {};
 
 		//Default port
 		this.port = conf.port || 3000;
@@ -35,6 +35,9 @@ module.exports = function() {
 	 * @method start
 	 */
 	ExpressServer.prototype.start = function(opts, callback) {
+		opts = opts || {
+			disableServer: false
+		};
 
 		app = express();
 		this.app = app;
@@ -132,7 +135,6 @@ module.exports = function() {
 			}.bind(this));
 		}
 
-
 		async.series(jobs, function(err) {
 			if (err) {
 				log.err('Can\'t boot the server.');
@@ -157,6 +159,9 @@ module.exports = function() {
 			if (fileExists(initFile)) {
 				require(initFile)(app, callback.bind(this, app));
 			}
+			else {
+				callback.call(this, app);
+			}
 
 		}.bind(this));
 
@@ -167,7 +172,7 @@ module.exports = function() {
 	 * Stopping express server
 	 */
 	ExpressServer.prototype.stop = function() {
-		log.sys('Stoping ' + this.conf.name);
+		log.sys('Stoping ' + this.name);
 	};
 
 	/**
