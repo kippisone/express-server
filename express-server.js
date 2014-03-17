@@ -68,12 +68,9 @@ module.exports = function() {
 			});
 		}.bind(this);
 
-		this.app = app;
-		
 		log.sys('Starting ' + this.name);
 		log.sys(' ... environment:', app.get('env'));
 		log.sys(' ... set base dir to:', this.baseDir);
-
 
 		// app.use(express.logger('dev'));
 		// app.engine('.hbs', require('hbs').__express);
@@ -129,9 +126,10 @@ module.exports = function() {
 
 		//Load API view
 		if (this.apiRoute) {
-			jobs.push(function() {
+			jobs.push(function(callback) {
 				log.sys(' ... register api route', this.apiRoute);
 				require(path.join(__dirname, 'routes/api')).call(this, app);
+				callback();
 			}.bind(this));
 		}
 
