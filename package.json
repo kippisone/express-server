@@ -16,7 +16,7 @@
   "author": "Andi Heinkelein <andi@noname-media.com> (http://noname-media.com/)",
   "license": "MIT",
   "dependencies": {
-    "xqnode-logger": "0.0.2",
+    "xqnode-logger": "~0.1.0",
     "express": "~3.4.8",
     "glob": "~3.2.8",
     "handlebars": "~2.0.0-alpha.1",
