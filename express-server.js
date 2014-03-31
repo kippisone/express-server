@@ -14,6 +14,11 @@ module.exports = function() {
 	var ExpressServer = function(conf) {
 		conf = conf || {};
 
+		if (conf.logLevel) {
+			console.log('Change logLevel:', conf.logLevel);
+			log.setLevel(conf.logLevel);
+		}
+
 		//Default port
 		this.port = conf.port || 3000;
 
