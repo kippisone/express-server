@@ -35,6 +35,9 @@ module.exports = function() {
 		this.apiRoute = conf.apiRoute || null;
 
 		this.allRoutes = [];
+
+		app = express();
+		this.app = app;
 	};
 
 	/**
@@ -47,10 +50,7 @@ module.exports = function() {
 			disableServer: false
 		};
 
-		app = express();
-		this.app = app;
 		cbDone = false;
-
 		if (!callback) {
 			callback = function() {};
 		}
@@ -124,11 +124,14 @@ module.exports = function() {
 			jobs.push(function(callback) {
 				var routesDir = path.join(this.baseDir, 'routes/**/*.js');
 				var files = glob.sync(routesDir);
-				if (files) {
+				if (files.length !== 0) {
 					files.forEach(function(file) {
 						log.sys(' ... load route', file);
 						require(file).call(this, app, callback);
 					}.bind(this));
+				}
+				else {
+					callback();
 				}
 			}.bind(this));
 		}
@@ -173,6 +176,7 @@ module.exports = function() {
 				require(initFile)(app, callback.bind(this, app));
 			}
 			else {
+				
 				callback.call(this, app);
 			}
 
