@@ -34,6 +34,7 @@ module.exports = function() {
 		this.allRoutes = [];
 
 		app = express();
+		app.express = express;
 		this.app = app;
 	};
 

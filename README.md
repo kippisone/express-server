@@ -1,6 +1,6 @@
 #Express Server
 
-Express Server is a easy to use node.js webserver based on express.js. It came with an integrated overview of your REST API. 
+Express Server is a easy to use node.js webserver based on express.js. It cames with an integrated overview of your REST API. 
 
 ##Integration
 Create folowing folder structure in your project root:
@@ -10,12 +10,12 @@ projectRoot
 --------------------------
 +-- server
 	+-- env
-		+-- development.js
-		+-- production.js
-	+-- database.js
-	+-- express.js
-	+-- init.js
+		+-- development.js		//Dev config
+		+-- production.js		//Production config
+	+-- database.js				//Database connections
+	+-- express.js				//Express config and adsons
+	+-- init.js					//To be called when server was started
 +-- routes
-	+-- myRoutes.js
+	+-- myRoutes.js				//Your routes
 	+-- moreRoutes.js
 `
