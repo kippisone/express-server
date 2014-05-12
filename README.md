@@ -19,3 +19,12 @@ projectRoot
 	+-- myRoutes.js				//Your routes
 	+-- moreRoutes.js
 `
+
+##Start an express server
+
+`
+var server = new ExpressServer({
+	name: 'My Express Server',
+	port: 3000
+});
+`

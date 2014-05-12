@@ -9,14 +9,17 @@ var log = require('xqnode-logger'),
 module.exports = function() {
 	"use strict";
 
-	var app;
+	var app, cbDone;
 
 	var ExpressServer = function(conf) {
 		conf = conf || {};
 
+		
 		if (conf.logLevel) {
-			console.log('Change logLevel:', conf.logLevel);
 			log.setLevel(conf.logLevel);
+		}
+		else {
+			log.setLevel('sys');
 		}
 
 		//Default port
@@ -48,6 +51,7 @@ module.exports = function() {
 			disableServer: false
 		};
 
+		cbDone = false;
 		if (!callback) {
 			callback = function() {};
 		}
@@ -142,7 +146,13 @@ module.exports = function() {
 			}.bind(this));
 		}
 
-		async.series(jobs, function(err) {
+		async.series(jobs, function(err, result) {
+			if (cbDone) {
+				return;
+			}
+
+			cbDone = true;
+
 			if (err) {
 				log.err('Can\'t boot the server.');
 				log.err((err.message || err));
