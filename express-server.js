@@ -47,6 +47,11 @@ module.exports = function() {
 	 * @method start
 	 */
 	ExpressServer.prototype.start = function(opts, callback) {
+		if (typeof opts === 'function') {
+			callback = opts;
+			opts = null;
+		}
+
 		opts = opts || {
 			disableServer: false
 		};
@@ -167,7 +172,7 @@ module.exports = function() {
 
 			if (opts.disableServer !== true) {
 				log.sys(' ... listening on port ', this.port);
-				log.sys('Server start was successfull!');
+				log.sys('Server started successfull!');
 				app.listen(this.port);
 			}
 
