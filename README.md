@@ -3,6 +3,7 @@
 Express Server is an easy to use node.js webserver based on express.js
 
 
+
 ##Integration
 Create folowing folder structure in your project root:
 All these files are optional.
@@ -15,7 +16,7 @@ projectRoot
 		+-- development.js		//Dev config
 		+-- production.js		//Production config
 	+-- database.js				//Database connections
-	+-- express.js				//Express config and adsons
+	+-- express.js				//Express config and adons
 	+-- init.js					//To be called when server was started
 +-- routes
 	+-- myRoutes.js				//Your routes
