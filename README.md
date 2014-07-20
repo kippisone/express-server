@@ -1,12 +1,13 @@
 #Express Server
 
-Express Server is a easy to use node.js webserver based on express.js
+Express Server is an easy to use node.js webserver based on express.js
+
 
 ##Integration
 Create folowing folder structure in your project root:
 All these files are optional.
 
-`
+```
 projectRoot
 --------------------------
 +-- server
@@ -19,20 +20,20 @@ projectRoot
 +-- routes
 	+-- myRoutes.js				//Your routes
 	+-- moreRoutes.js
-`
+```
 
 ##Start an express server
 
-`
+```
 var server = new ExpressServer({
 	name: 'My Express Server',
 	port: 3000
 });
-`
+```
 
 ##Setting up env configurations
 
-`
+```
 module.exports = function(app, done) {
 	'use strict';
 
@@ -43,14 +44,14 @@ module.exports = function(app, done) {
 
 	done();
 };
-`
+```
 
 Don't forget to call the done function
 
 
 ##Connecting to a database
 
-`
+```
 module.exports = function(app, done) {
 	'use strict';
 
@@ -58,11 +59,11 @@ module.exports = function(app, done) {
 
 	done();
 };
-
+```
 
 ##Using express middlewares
 
-`
+```
 module.exports = function(app, done) {
 	'use strict';
 
@@ -70,11 +71,11 @@ module.exports = function(app, done) {
 
 	done();
 };
-
+```
 
 ##Init script
 
-`
+```
 module.exports = function(app, done) {
 	'use strict';
 
@@ -82,7 +83,7 @@ module.exports = function(app, done) {
 
 	done();
 };
-
+```
 
 ##Adding routes
 
@@ -90,7 +91,7 @@ Place routes under yourproject/routes/
 All files in this folder will be called during the start progress
 
 
-`
+```
 module.exports = function(app, done) {
 	'use strict';
 
@@ -101,3 +102,4 @@ module.exports = function(app, done) {
 
 	done();
 };
+```
