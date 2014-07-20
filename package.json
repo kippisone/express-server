@@ -13,7 +13,7 @@
     "rest",
     "restful"
   ],
-  "author": "Andi Heinkelein <andi@noname-media.com> (http://noname-media.com/)",
+  "author": "Andi Heinkelein <andi.oxidant@noname-media.com>",
   "license": "MIT",
   "dependencies": {
     "xqnode-logger": "~0.1.0",
