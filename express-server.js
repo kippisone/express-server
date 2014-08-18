@@ -1,5 +1,6 @@
 var fileExists = require('fs').existsSync,
-	path = require('path');
+	path = require('path'),
+	fs = require('fs');
 
 var log = require('xqnode-logger'),
 	express = require('express'),
@@ -34,10 +35,16 @@ module.exports = function() {
 		//API route (Default is disabled)
 		this.apiRoute = conf.apiRoute || null;
 
+		//Request logging config
+		if (conf.requestLog) {
+			this.requestLogFile = conf.requestLogFile || path.join(this.baseDir, 'log', 'request.log');
+		}
+
 		this.allRoutes = [];
 
 		app = express();
 		app.express = express;
+		app.logger = log;
 		this.app = app;
 	};
 
@@ -92,6 +99,11 @@ module.exports = function() {
 		// app.set('view engine', 'hbs');
 		// app.set('views', path.join(this.baseDir, 'views'));
 		app.baseDir = this.baseDir;
+
+		//Enable request logging
+		if (this.requestLogFile) {
+			app.use(this.requestLogger.bind(this));
+		}
 
 		var jobs = [];
 		
@@ -209,6 +221,37 @@ module.exports = function() {
 		}
 
 		this.json(data);
+	};
+
+	ExpressServer.prototype.requestLogger = function(req, res, next) {
+		var startTime = Date.now(),
+			logFile = this.requestLogFile;
+
+		var LogIt = function() {
+			console.log('REQ:', req);
+			var parseTime = Date.now() - startTime;
+			res.removeListener('finish', LogIt);
+
+			var data = '[' + (new Date()).toString() + ']';
+			data += ' ' + res.statusCode;
+			data += ' ' + parseTime + 'ms';
+			data += ' ' + req.method;
+			data += ' "' + req.protocol;
+			data += '://' + req.get('host');
+			data += req.originalUrl + '"';
+			data += ' "' + res.get('content-type') + '"';
+			data += ' "' + req.get('user-agent') + '"';
+			if (req.sessionID) {
+				data += ' (' + req.sessionID + ')';
+			}
+			data += '\n';
+
+			fs.appendFile(logFile, data, function() {});
+		};
+
+		res.on('finish', LogIt);
+
+		next();
 	};
 
 	return ExpressServer;
