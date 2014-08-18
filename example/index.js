@@ -3,7 +3,9 @@ var ExpressServer = require('../express-server'),
 
 var server = new ExpressServer({
 	name: 'My Express Server',
-	port: 3000
+	port: 3000,
+    requestLog: true,
+    baseDir: __dirname
 });
 
 server.start(function() {

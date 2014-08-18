@@ -28,8 +28,18 @@ var server = new ExpressServer({
 	name: 'My Express Server',
 	port: 3000
 });
+
 `
 
+###Options:
+	name        Set server name
+	baseDir     Set base dir. Default is process.cwd()
+	port        Set default port (Default: 3000)
+	requestLog  Enable request logging. This value can be a boolean or a string.
+	            A String is interpreted as the log file path.
+	            (Default: <baseDir>/log/request.log). Request logging is disabled
+	            by default
+	
 ##Setting up env configurations
 
 `
