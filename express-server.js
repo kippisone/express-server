@@ -44,6 +44,7 @@ module.exports = function() {
 
 		app = express();
 		app.express = express;
+		app.logger = log;
 		this.app = app;
 	};
 
