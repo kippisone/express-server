@@ -37,7 +37,14 @@ module.exports = function() {
 
 		//Request logging config
 		if (conf.requestLog) {
-			this.requestLogFile = conf.requestLogFile || path.join(this.baseDir, 'log', 'request.log');
+			this.requestLogFile = conf.requestLog === true ? path.join(this.baseDir, 'log', 'request.log') : conf.requestLog;
+			if (this.requestLogFile.charAt(0) === '.') {
+				this.requestLogFile = path.join(this.baseDir, this.requestLogFile);
+			}
+
+			this.requestLogIgnore = {
+				contentType: null
+			};
 		}
 
 		this.allRoutes = [];
@@ -102,6 +109,7 @@ module.exports = function() {
 
 		//Enable request logging
 		if (this.requestLogFile) {
+			log.sys(' ... log requests to:', this.requestLogFile);
 			app.use(this.requestLogger.bind(this));
 		}
 
@@ -225,12 +233,18 @@ module.exports = function() {
 
 	ExpressServer.prototype.requestLogger = function(req, res, next) {
 		var startTime = Date.now(),
-			logFile = this.requestLogFile;
+			logFile = this.requestLogFile,
+			ignoreContentTypes = this.requestLogIgnore.contentType;
 
 		var LogIt = function() {
-			console.log('REQ:', req);
-			var parseTime = Date.now() - startTime;
+			var parseTime = Date.now() - startTime,
+				contentType = res.get('content-type');
+
 			res.removeListener('finish', LogIt);
+
+			if (ignoreContentTypes && ignoreContentTypes.indexOf(contentType) !== -1) {
+				return;
+			}
 
 			var data = '[' + (new Date()).toString() + ']';
 			data += ' ' + res.statusCode;
@@ -239,7 +253,7 @@ module.exports = function() {
 			data += ' "' + req.protocol;
 			data += '://' + req.get('host');
 			data += req.originalUrl + '"';
-			data += ' "' + res.get('content-type') + '"';
+			data += ' "' + contentType + '"';
 			data += ' "' + req.get('user-agent') + '"';
 			if (req.sessionID) {
 				data += ' (' + req.sessionID + ')';
