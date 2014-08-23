@@ -8,3 +8,4 @@
 [Mon Aug 18 2014 14:02:20 GMT+0200 (CEST)] 200 23ms GET "http://localhost:3000/" "text/html; charset=utf-8" "curl/7.35.0" sid:TSDbfC9SRP0Q-UG4xK49Ijw0ai76NNCl
 [Mon Aug 18 2014 14:02:55 GMT+0200 (CEST)] 200 29ms GET "http://localhost:3000/" "text/html; charset=utf-8" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0" sid:E_rpoSz530lG_8S6b3CpIccUU38VsOBH
 [Mon Aug 18 2014 14:03:01 GMT+0200 (CEST)] 404 9ms GET "http://localhost:3000/test" "text/html" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0" sid:E_rpoSz530lG_8S6b3CpIccUU38VsOBH
+[Sat Aug 23 2014 13:50:54 GMT+0200 (CEST)] 200 10ms GET "http://localhost:3000/" "text/html; charset=utf-8" "curl/7.35.0" (9zyIG7W4vTatf2QqHw5znCO9_-1HQXbX)
