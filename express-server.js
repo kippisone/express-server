@@ -237,7 +237,6 @@ module.exports = function() {
 			ignoreContentTypes = this.requestLogIgnore.contentType;
 
 		var LogIt = function() {
-			var parseTime = Date.now() - startTime,
 				contentType = res.get('content-type');
 
 			res.removeListener('finish', LogIt);
