@@ -1,6 +1,6 @@
 {
   "name": "express-server",
-  "version": "0.1.1",
+  "version": "0.4.0",
   "description": "A easy API server based on express",
   "main": "express-server.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "rest",
     "restful"
   ],
-  "author": "Andi Heinkelein <andi.oxidant@noname-media.com> (http://noname-media.com/)",
+  "author": "Andi Heinkelein <andi.oxidant@noname-media.com>",
   "license": "MIT",
   "dependencies": {
     "xqnode-logger": "~0.1.0",
