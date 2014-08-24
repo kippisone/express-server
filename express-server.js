@@ -47,6 +47,16 @@ module.exports = function() {
 			};
 		}
 
+		//Enable user tracking
+		if (conf.userTracking) {
+			this.userTracking = conf.userTracking === true ? path.join(this.baseDir, 'log', 'usertracking.log') : conf.userTracking;
+			if (this.userTracking.charAt(0) === '.') {
+				this.userTracking = path.join(this.baseDir, this.userTracking);
+			}
+
+			
+		}
+
 		this.allRoutes = [];
 
 		app = express();
@@ -101,10 +111,6 @@ module.exports = function() {
 		log.sys(' ... environment:', app.get('env'));
 		log.sys(' ... set base dir to:', this.baseDir);
 
-		// app.use(express.logger('dev'));
-		// app.engine('.hbs', require('hbs').__express);
-		// app.set('view engine', 'hbs');
-		// app.set('views', path.join(this.baseDir, 'views'));
 		app.baseDir = this.baseDir;
 
 		//Enable request logging
@@ -114,7 +120,7 @@ module.exports = function() {
 		}
 
 		var jobs = [];
-		
+
 		//Load Environment configuration
 		var envConf = path.join(this.baseDir, 'server/env', app.get('env') + '.js');
 		if (fileExists(envConf)) {
@@ -171,6 +177,17 @@ module.exports = function() {
 			}.bind(this));
 		}
 
+		//Enable user tracking
+		if (this.userTracking) {
+			this.trackingRoute = this.trackingRoute || '/track';
+			jobs.push(function(callback) {
+				log.sys(' ... track user to:', this.userTracking);
+				require(path.join(__dirname, 'routes/tracking')).call(this, app);
+				callback();
+			}.bind(this));
+		}
+
+		
 		async.series(jobs, function(err, result) {
 			if (cbDone) {
 				return;
@@ -255,6 +272,7 @@ module.exports = function() {
 			data += req.originalUrl + '"';
 			data += ' "' + contentType + '"';
 			data += ' "' + req.get('user-agent') + '"';
+			data += ' "' + req.get('referer') + '"';
 			if (req.sessionID) {
 				data += ' (' + req.sessionID + ')';
 			}

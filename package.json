@@ -16,11 +16,12 @@
   "author": "Andi Heinkelein <andi.oxidant@noname-media.com>",
   "license": "MIT",
   "dependencies": {
-    "xqnode-logger": "~0.1.0",
+    "async": "~0.2.10",
     "express": "~3.4.8",
+    "express-session": "^1.7.5",
     "glob": "~3.2.8",
     "handlebars": "~2.0.0-alpha.1",
-    "async": "~0.2.10",
-    "express-session": "^1.7.5"
+    "hbs": "^2.7.0",
+    "xqnode-logger": "~0.1.0"
   }
 }

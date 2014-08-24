@@ -5,7 +5,8 @@ var server = new ExpressServer({
 	name: 'My Express Server',
 	port: 3000,
     requestLog: true,
-    baseDir: __dirname
+    baseDir: __dirname,
+    userTracking: './log/tracking.log'
 });
 
 server.start(function() {
