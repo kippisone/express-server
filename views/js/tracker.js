@@ -12,7 +12,9 @@
             '&availScreen=' + screen.availWidth + 'x' + screen.availHeight +
             '&page=' + encodeURIComponent(location.href) +
             '&pixelRatio=' + window.devicePixelRatio +
-            '&colorDepth=' + screen.colorDepth;
+            '&colorDepth=' + screen.colorDepth +
+            '&localTime=' + (new Date()).toString() +
+            '&lang=' + encodeURIComponent(navigator.language);
 
         this.send(data);
     };

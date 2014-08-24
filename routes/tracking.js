@@ -13,6 +13,8 @@ module.exports = function(app) {
             data.sessioId = req.sessionID;
         }
 
+        data.time = Date.now();
+
         tracker.track(JSON.stringify(data) + '\n');
         res.end();
     }.bind(this));
