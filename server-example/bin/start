@@ -1,0 +1,41 @@
+#!/usr/bin/env node
+var program = require('commander'),
+    forever = require('forever'),
+    pkg = require('../package.json');
+
+program.version(pkg.version)
+    .option('--production', 'Start ' + pkg.name + ' production server')
+    .option('--staging', 'Start ' + pkg.name + ' staging server')
+    .parse(process.argv);
+
+if (program.production || /-production\/?/.test(process.cwd())) {
+    process.env.NODE_ENV = 'production';
+} else if (program.staging || /-staging\/?/.test(process.cwd())) {
+    process.env.NODE_ENV = 'staging';
+}
+else {
+    process.env.NODE_ENV = 'development';
+}
+
+var logDir = process.cwd() + '/log';
+var pidFile = process.cwd() + '/pid/' + pkg.name + '-' + process.env.NODE_ENV + '.pid';
+
+console.log('Starting %s Services:', pkg.name);
+console.log('Current working dir: ', process.cwd());
+console.log('NODE_ENV:            ', process.env.NODE_ENV);
+console.log('Log dir:             ', logDir);
+console.log('PID file:       ', pidFile);
+console.log('');
+
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
+    var cmd = forever.startDaemon('./application/' + pkg.name + '-server.js', {
+        logFile: logDir + '/forever.log',
+        pidFile: pidFile,
+        path: process.cwd()
+    });
+
+    console.log('PID: ', cmd.pid);
+}
+else {
+    require('../application/' + pkg.name + '-server');
+}
