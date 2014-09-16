@@ -153,27 +153,26 @@ module.exports = function() {
 
 		//Load routes
 		if (opts.disableRoutes !== true) {
-			jobs.push(function(callback) {
-				var routesDir = path.join(this.baseDir, 'routes/**/*.js');
-				var files = glob.sync(routesDir);
-				if (files.length !== 0) {
-					files.forEach(function(file) {
+			var routesDir = path.join(this.baseDir, 'routes/**/*.js');
+			var files = glob.sync(routesDir);
+			if (files.length !== 0) {
+				files.forEach(function(file) {
+					jobs.push(function(callback) {
 						log.sys(' ... load route', file);
 						require(file).call(this, app, callback);
 					}.bind(this));
-				}
-				else {
-					callback();
-				}
-			}.bind(this));
+				}.bind(this));
+			}
+			else {
+				log.sys(' ... no routes found');
+			}
 		}
 
 		//Load API view
 		if (this.apiRoute) {
 			jobs.push(function(callback) {
 				log.sys(' ... register api route', this.apiRoute);
-				require(path.join(__dirname, 'routes/api')).call(this, app);
-				callback();
+				require(path.join(__dirname, 'routes/api')).call(this, app, callback);
 			}.bind(this));
 		}
 
@@ -182,8 +181,7 @@ module.exports = function() {
 			this.trackingRoute = this.trackingRoute || '/track';
 			jobs.push(function(callback) {
 				log.sys(' ... track user to:', this.userTracking);
-				require(path.join(__dirname, 'routes/tracking')).call(this, app);
-				callback();
+				require(path.join(__dirname, 'routes/tracking')).call(this, app, callback);
 			}.bind(this));
 		}
 
