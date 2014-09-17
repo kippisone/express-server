@@ -97,7 +97,7 @@ module.exports = function() {
 			}
 
 			fn.unshift(path);
-			app[method].apply(app, fn);
+			app[method](path, fn);
 			this.allRoutes.push({
 				method: method,
 				path: path,
