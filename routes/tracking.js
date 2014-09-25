@@ -1,6 +1,6 @@
 var path = require('path');
 
-module.exports = function(app) {
+module.exports = function(app, done) {
     'use strict';
     
     var Tracker = require('../modules/tracker');
@@ -22,4 +22,6 @@ module.exports = function(app) {
     app.get('/express-server/js/tracker.js', function(req, res) {
         res.sendfile(path.join(__dirname, '../views/js/tracker.js'));
     });
+
+    done();
 };

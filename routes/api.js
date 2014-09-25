@@ -1,4 +1,4 @@
-module.exports = function(app) {
+module.exports = function(app, done) {
 	'use strict';
 	
 	var file = require('fs').readFile,
@@ -23,4 +23,6 @@ module.exports = function(app) {
 	app.get('/express-server/css/styles.css', function(req, res) {
 		res.sendfile(path.join(__dirname, '../views/css/styles.css'));
 	});
+
+	done();
 };
