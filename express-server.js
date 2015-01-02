@@ -16,11 +16,12 @@ module.exports = function() {
 	var ExpressServer = function(conf) {
 		conf = conf || {};
 
-		//Load config file
-		var serverConf = require(path.join(__dirname, '../conf/', (process.env.NODE_ENV || 'development') + '.json'));
-		conf = extend({}, serverConf, conf);
+		//Base dir
+		this.baseDir = conf.baseDir || process.cwd();
 
-		console.log('CONF', conf);
+		//Load config file
+		var serverConf = this.getConfig(conf.confDir);
+		conf = extend({}, serverConf, conf);
 		
 		if (conf.logLevel) {
 			log.setLevel(conf.logLevel);
@@ -29,14 +30,21 @@ module.exports = function() {
 			log.setLevel('sys');
 		}
 
+		if (this.confFile) {
+			log.sys('Read config file:', this.confFile);
+		}
+		else {
+			log.sys('No config file found!');
+			this._confFiles.map(function(dir) {
+				log.sys(' ... ' + dir);
+			});
+		}
+
 		//Default port
 		this.port = conf.port || 3000;
 
 		//Default name
 		this.name = conf.name || 'Express server';
-
-		//Base dir
-		this.baseDir = conf.baseDir || process.cwd();
 
 		//API route (Default is disabled)
 		this.apiRoute = conf.apiRoute || null;
@@ -288,6 +296,26 @@ module.exports = function() {
 		res.on('finish', LogIt);
 
 		next();
+	};
+
+	ExpressServer.prototype.getConfig = function(confDir) {
+		this._confFiles = [];
+		var confFile = (process.env.NODE_ENV || 'development') + '.json';
+		if (confDir) {
+			this._confFiles.push(path.join(confDir, confFile));
+		}
+
+		this._confFiles.push(path.join(this.baseDir, 'config', confFile));
+		this._confFiles.push(path.join(this.baseDir, '../config', confFile));
+
+		for (var i = 0, len = this._confFiles.length; i < len; i++) {
+			if (fs.existsSync(this._confFiles[i])) {
+				this.confFile = this._confFiles[i];
+				return require(this._confFiles[i]);
+			}
+		}
+
+		return {};
 	};
 
 	return ExpressServer;

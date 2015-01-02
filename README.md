@@ -36,6 +36,7 @@ var server = new ExpressServer({
 ###Options:
 	name        Set server name
 	baseDir     Set base dir. Default is process.cwd()
+	confDir		Path to config files from dir (Load confiles from $baseDir/conf, $baseDir/../conf/ per default)
 	port        Set default port (Default: 3000)
 	requestLog  Enable request logging. This value can be a boolean or a string.
 	            A String is interpreted as the log file path.
