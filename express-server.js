@@ -5,7 +5,8 @@ var fileExists = require('fs').existsSync,
 var log = require('xqnode-logger'),
 	express = require('express'),
 	glob = require('glob'),
-	async = require('async');
+	async = require('async'),
+	extend = require('node.extend');
 
 module.exports = function() {
 	"use strict";
@@ -15,6 +16,11 @@ module.exports = function() {
 	var ExpressServer = function(conf) {
 		conf = conf || {};
 
+		//Load config file
+		var serverConf = require(path.join(__dirname, '../conf/', (process.env.NODE_ENV || 'development') + '.json'));
+		conf = extend({}, serverConf, conf);
+
+		console.log('CONF', conf);
 		
 		if (conf.logLevel) {
 			log.setLevel(conf.logLevel);
