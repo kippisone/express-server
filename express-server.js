@@ -8,6 +8,13 @@ var log = require('xqnode-logger'),
 	async = require('async'),
 	extend = require('node.extend');
 
+
+
+//Catch uncaught errors
+process.on('uncaughtException', function(err) {
+	log.error(err);
+});
+
 module.exports = function() {
 	"use strict";
 
