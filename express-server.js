@@ -12,7 +12,7 @@ var log = require('xqnode-logger'),
 
 //Catch uncaught errors
 process.on('uncaughtException', function(err) {
-	log.error(err);
+	log.error(err.name + ': ' + err.message, err.stack.replace(/.*\n/, '\n'));
 });
 
 module.exports = function() {
@@ -36,6 +36,8 @@ module.exports = function() {
 		else {
 			log.setLevel('sys');
 		}
+
+		log.sys('Set loglevel to ' + log.getLevel());
 
 		if (this.confFile) {
 			log.sys('Read config file:', this.confFile);
