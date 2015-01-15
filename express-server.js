@@ -85,6 +85,7 @@ module.exports = function() {
 		app = express();
 		app.express = express;
 		app.logger = log;
+		app.conf = conf;
 		this.app = app;
 	};
 
