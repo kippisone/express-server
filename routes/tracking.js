@@ -20,7 +20,7 @@ module.exports = function(app, done) {
     }.bind(this));
 
     app.get('/express-server/js/tracker.js', function(req, res) {
-        res.sendfile(path.join(__dirname, '../views/js/tracker.js'));
+        res.sendFile(path.join(__dirname, '../views/js/tracker.js'));
     });
 
     done();
