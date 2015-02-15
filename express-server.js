@@ -1,3 +1,5 @@
+'use strict';
+
 var fileExists = require('fs').existsSync,
 	path = require('path'),
 	fs = require('fs');
@@ -16,8 +18,6 @@ process.on('uncaughtException', function(err) {
 });
 
 module.exports = function() {
-	"use strict";
-
 	var app, cbDone;
 
 	var ExpressServer = function(conf) {

@@ -4,8 +4,7 @@ module.exports = function(app, done) {
 	var file = require('fs').readFile,
 		path = require('path');
 
-	var getAPI = require('../modules/getAPI')(app),
-		handlebars = require('handlebars');
+	var handlebars = require('handlebars');
 
 	app.get(this.apiRoute, function(req, res) {
 		file(path.join(__dirname, '../views/api.hbs'), { encoding: 'utf8' }, function(err, source) {
