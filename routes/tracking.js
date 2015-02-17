@@ -16,7 +16,7 @@ module.exports = function(app, done) {
         data.time = Date.now();
 
         tracker.track(JSON.stringify(data) + '\n');
-        res.end();
+        res.send('');
     }.bind(this));
 
     app.get('/express-server/js/tracker.js', function(req, res) {
