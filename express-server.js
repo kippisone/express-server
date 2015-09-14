@@ -226,7 +226,7 @@ module.exports = function() {
 
 			app.use(function(err, req, res, next) {
 				console.error(err.stack);
-				res.send(500, 'Something broke!\n');
+				res.status(500).send('Something broke!\n');
 			});
 
 			if (opts.disableServer !== true) {
