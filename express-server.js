@@ -15,6 +15,7 @@ var log = require('xqnode-logger'),
 //Catch uncaught errors
 process.on('uncaughtException', function(err) {
 	log.error(err.name + ': ' + err.message, err.stack.replace(/.*\n/, '\n'));
+	console.error(err.name + ': ' + err.message, err.stack.replace(/.*\n/, '\n'));
 });
 
 module.exports = function() {
@@ -220,6 +221,7 @@ module.exports = function() {
 			if (err) {
 				log.err('Can\'t boot the server.');
 				log.err((err.message || err));
+				console.error((err.message || err));
 				process.exit(1);
 				return;
 			}
