@@ -26,6 +26,7 @@ module.exports = function() {
 
 		//Base dir
 		this.baseDir = conf.baseDir || process.cwd();
+		this.publicDir = conf.publicDir || path.join(this.baseDir, 'public');
 
 		//Load config file
 		var serverConf = this.getConfig(conf.confDir);
@@ -77,11 +78,10 @@ module.exports = function() {
 			if (this.userTracking.charAt(0) === '.') {
 				this.userTracking = path.join(this.baseDir, this.userTracking);
 			}
-
-			
 		}
 
 		this.allRoutes = [];
+		this.routes = [];
 
 		app = express();
 		app.express = express;
@@ -144,6 +144,11 @@ module.exports = function() {
 			app.use(this.requestLogger.bind(this));
 		}
 
+		//Log requestts to console?
+		if (true) {
+			app.use(log.__express);
+		}
+
 		var jobs = [];
 
 		//Load Environment configuration
@@ -162,8 +167,8 @@ module.exports = function() {
 		var expressFile = path.join(app.baseDir, 'server/express.js');
 		if (fileExists(expressFile)) {
 			jobs.push(function(callback) {
-				log.sys(' ... Load express.js');
-				require(expressFile)(app, callback);
+				log.sys(' ... load express config');
+				require(expressFile).call(this, app, callback);
 			}.bind(this));
 		}
 
@@ -171,8 +176,8 @@ module.exports = function() {
 		var databaseFile = path.join(app.baseDir, 'server/database.js');
 		if (fileExists(databaseFile)) {
 			jobs.push(function(callback) {
-				log.sys(' ... Load database.js');
-				require(databaseFile)(app, callback);
+				log.sys(' ... load database config');
+				require(databaseFile).call(this, app, callback);
 			}.bind(this));
 		}
 
@@ -183,14 +188,27 @@ module.exports = function() {
 			if (files.length !== 0) {
 				files.forEach(function(file) {
 					jobs.push(function(callback) {
-						log.sys(' ... load route', file);
+						log.sys(' ... load route file', file);
 						require(file).call(this, app, callback);
 					}.bind(this));
 				}.bind(this));
 			}
-			else {
+			else if (this.routes.length === 0) {
 				log.sys(' ... no routes found');
 			}
+		}
+
+		//Load custom routes
+		if (this.routes && this.routes.length) {
+			jobs.push(function(callback) {
+				this.routes.forEach(function(route) {
+					log.sys(' ... add route', ' '.repeat(6 - route.method.length) + route.method + ' ' + route.route);
+					var args = [route.route].concat(route.funcs);
+					this.app[route.method.toLowerCase()].apply(this.app, args);
+				}, this);
+
+				callback();
+			}.bind(this));
 		}
 
 		//Load API view
@@ -328,6 +346,16 @@ module.exports = function() {
 		}
 
 		return {};
+	};
+
+	ExpressServer.prototype.addRoute = function(method, route, fn) {
+		var funcs = Array.prototype.slice.call(arguments, 2);
+		console.log('ADD funcs', funcs);
+		this.routes.push({
+			method: method,
+			route: route,
+			funcs: funcs
+		});
 	};
 
 	return ExpressServer;
