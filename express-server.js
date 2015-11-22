@@ -350,7 +350,6 @@ module.exports = function() {
 
 	ExpressServer.prototype.addRoute = function(method, route, fn) {
 		var funcs = Array.prototype.slice.call(arguments, 2);
-		console.log('ADD funcs', funcs);
 		this.routes.push({
 			method: method,
 			route: route,
