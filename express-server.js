@@ -31,6 +31,7 @@ module.exports = function() {
 		//Load config file
 		var serverConf = this.getConfig(conf.confDir);
 		conf = extend({}, serverConf, conf);
+		this.conf = conf;
 		
 		if (conf.logLevel) {
 			log.setLevel(conf.logLevel);
