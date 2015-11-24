@@ -23,6 +23,16 @@ module.exports = function(grunt) {
                 }
             }
         },
+        release: {
+            options: {
+                npm: true, //default: true
+                indentation: '    ', //default: '  ' (two spaces)
+                tagName: 'v<%= version %>', //default: '<%= version %>'
+                commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
+                tagMessage: 'Tagging release v<%= version %>', //default: 'Version <%= version %>',
+                beforeRelease: ['build']
+            }
+        },
         tagrelease: {
             file: 'package.json',
             commit:  true,
@@ -34,18 +44,10 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-bumpup');
-    grunt.loadNpmTasks('grunt-tagrelease');
+    grunt.loadNpmTasks('grunt-release');
 
     grunt.registerTask('default', 'jshint');
     grunt.registerTask('build', [
         'jshint',
         'bumpup:prerelease']);
-
-    grunt.registerTask('release', function (type) {
-        type = type ? type : 'patch';     // Default release type 
-        grunt.task.run('build');         // Lint stuff
-        grunt.log.ok('Starting release ' + pkg.version); 
-        grunt.task.run('bumpup:' + type); // Bump up the version 
-        grunt.task.run('tagrelease');     // Commit & tag the release 
-    });
 };
