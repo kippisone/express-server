@@ -1,5 +1,3 @@
-module.exports = function(app, done) {
+module.exports = function(app) {
 	'use strict';
-
-	done();
 };

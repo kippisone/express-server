@@ -1,363 +1,354 @@
 'use strict';
 
-var fileExists = require('fs').existsSync,
-	path = require('path'),
-	fs = require('fs');
+let path = require('path');
+let fs = require('fs');
 
-var log = require('xqnode-logger'),
-	express = require('express'),
-	glob = require('glob'),
-	async = require('async'),
-	extend = require('node.extend');
-
+let log = require('logtopus').getLogger('express-server');
+let co = require('co-utils');
+let fileExists = require('fs').existsSync;
+let express = require('express');
+let glob = require('glob');
+let extend = require('node.extend');
 
 
 //Catch uncaught errors
 process.on('uncaughtException', function(err) {
-	log.error(err.name + ': ' + err.message, err.stack.replace(/.*\n/, '\n'));
-	console.error(err.name + ': ' + err.message, err.stack.replace(/.*\n/, '\n'));
+  log.error(err.name + ': ' + err.message, err.stack.replace(/.*\n/, '\n'));
+  console.error(err.name + ': ' + err.message, err.stack.replace(/.*\n/, '\n')); // eslint-disable-line
 });
 
-module.exports = function() {
-	var app, cbDone;
+let app;
 
-	var ExpressServer = function(conf) {
-		conf = conf || {};
+let ExpressServer = function(conf) {
+  conf = conf || {};
 
-		//Base dir
-		this.baseDir = conf.baseDir || process.cwd();
-		this.publicDir = conf.publicDir || path.join(this.baseDir, 'public');
+  //Base dir
+  this.baseDir = conf.baseDir || process.cwd();
+  this.publicDir = conf.publicDir || path.join(this.baseDir, 'public');
 
-		//Load config file
-		var serverConf = this.getConfig(conf.confDir);
-		conf = extend({}, serverConf, conf);
-		this.conf = conf;
-		
-		if (conf.logLevel) {
-			log.setLevel(conf.logLevel);
-		}
-		else {
-			log.setLevel('sys');
-		}
+  //Load config file
+  let serverConf = this.getConfig(conf.confDir);
+  conf = extend({}, serverConf, conf);
+  this.conf = conf;
 
-		log.sys('Set loglevel to ' + log.getLevel());
+  if (conf.logLevel) {
+    log.setLevel(conf.logLevel);
+  }
+  else {
+    log.setLevel('sys');
+  }
 
-		if (this.confFile) {
-			log.sys('Read config file:', this.confFile);
-		}
-		else {
-			log.sys('No config file found!');
-			this._confFiles.map(function(dir) {
-				log.sys(' ... ' + dir);
-			});
-		}
+  log.sys('Set loglevel to ' + log.getLevel());
 
-		//Default port
-		this.port = conf.port || 3000;
+  if (this.confFile) {
+    log.sys('Read config file:', this.confFile);
+  }
+  else {
+    log.sys('No config file found!');
+    this._confFiles.map(function(dir) {
+      log.sys(' ... ' + dir);
+    });
+  }
 
-		//Default name
-		this.name = conf.name || 'Express server';
+  //Default port
+  this.port = conf.port || 3000;
 
-		//API route (Default is disabled)
-		this.apiRoute = conf.apiRoute || null;
+  //Default name
+  this.name = conf.name || 'Express server';
 
-		//Request logging config
-		if (conf.requestLog) {
-			this.requestLogFile = conf.requestLog === true ? path.join(this.baseDir, 'log', 'request.log') : conf.requestLog;
-			if (this.requestLogFile.charAt(0) === '.') {
-				this.requestLogFile = path.join(this.baseDir, this.requestLogFile);
-			}
+  //API route (Disabled by default)
+  this.apiRoute = conf.apiRoute || null;
 
-			this.requestLogIgnore = {
-				contentType: null
-			};
-		}
+  //Request logging config
+  if (conf.requestLog) {
+    this.requestLogFile = conf.requestLog === true ? path.join(this.baseDir, 'log', 'request.log') : conf.requestLog;
+    if (this.requestLogFile.charAt(0) === '.') {
+      this.requestLogFile = path.join(this.baseDir, this.requestLogFile);
+    }
 
-		//Enable user tracking
-		if (conf.userTracking) {
-			this.userTracking = conf.userTracking === true ? path.join(this.baseDir, 'log', 'usertracking.log') : conf.userTracking;
-			if (this.userTracking.charAt(0) === '.') {
-				this.userTracking = path.join(this.baseDir, this.userTracking);
-			}
-		}
+    this.requestLogIgnore = {
+      contentType: null
+    };
+  }
 
-		this.allRoutes = [];
-		this.routes = [];
+  //Enable user tracking
+  if (conf.userTracking) {
+    this.userTracking = conf.userTracking === true ? path.join(this.baseDir, 'log', 'usertracking.log') : conf.userTracking;
+    if (this.userTracking.charAt(0) === '.') {
+      this.userTracking = path.join(this.baseDir, this.userTracking);
+    }
+  }
 
-		app = express();
-		app.express = express;
-		app.logger = log;
-		app.conf = conf;
-		this.app = app;
-	};
+  this.allRoutes = [];
+  this.routes = [];
 
-	/**
-	 * Starts an express server
-	 *
-	 * @method start
-	 */
-	ExpressServer.prototype.start = function(opts, callback) {
-		if (typeof opts === 'function') {
-			callback = opts;
-			opts = null;
-		}
+  app = express();
+  app.express = express;
+  app.logger = log;
+  app.conf = conf;
+  this.app = app;
+};
 
-		opts = opts || {
-			disableServer: false
-		};
+/**
+ * Starts an express server
+ *
+ * @method start
+ */
+ExpressServer.prototype.start = function(opts, callback) {
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = null;
+  }
 
-		cbDone = false;
-		if (!callback) {
-			callback = function() {};
-		}
+  opts = opts || {
+    disableServer: false
+  };
 
-		app.addRoute = function(method, path, info, options, callback) {
-			if (typeof options === 'function') {
-				callback = options;
-				options = null;
-			}
+  if (!callback) {
+    callback = function() {};
+  }
 
-			var fn = Array.prototype.slice.call(arguments);
-			while(fn.length > 0 && typeof fn[0] !== 'function') {
-				fn.shift();
-			}
+  app.addRoute = function(method, path, info, options, callback) {
+    log.warn('app.addRoute() was deprecated! Use default app.VERB methods instead');
+    if (typeof options === 'function') {
+      callback = options;
+      options = null;
+    }
 
-			fn.unshift(path);
-			app[method.toLowerCase()].apply(app, fn);
-			this.allRoutes.push({
-				method: method,
-				path: path,
-				info: info,
-				options: options,
-				callback: callback
-			});
-		}.bind(this);
+    var fn = Array.prototype.slice.call(arguments);
+    while(fn.length > 0 && typeof fn[0] !== 'function') {
+      fn.shift();
+    }
 
-		log.sys('Starting ' + this.name);
-		log.sys(' ... environment:', app.get('env'));
-		log.sys(' ... set base dir to:', this.baseDir);
+    fn.unshift(path);
+    app[method.toLowerCase()].apply(app, fn);
+    this.allRoutes.push({
+      method: method,
+      path: path,
+      info: info,
+      options: options,
+      callback: callback
+    });
+  }.bind(this);
 
-		app.baseDir = this.baseDir;
+  log.sys('Starting ' + this.name);
+  log.sys(' ... environment:', app.get('env'));
+  log.sys(' ... set base dir to:', this.baseDir);
 
-		//Enable request logging
-		if (this.requestLogFile) {
-			log.sys(' ... log requests to:', this.requestLogFile);
-			app.use(this.requestLogger.bind(this));
-		}
+  app.baseDir = this.baseDir;
 
-		//Log requestts to console?
-		if (true) {
-			app.use(log.__express);
-		}
+  // Set express-server static dir
+	app.use('/express-server', express.static(path.join(__dirname, 'public')));
 
-		var jobs = [];
+  // Enable request logging
+  if (this.requestLogFile) {
+    log.sys(' ... log requests to:', this.requestLogFile);
+    app.use(this.requestLogger.bind(this));
+  }
 
-		//Load Environment configuration
-		var envConf = path.join(this.baseDir, 'server/env', app.get('env') + '.js');
-		if (fileExists(envConf)) {
-			jobs.push(function(callback) {
-				log.sys(' ... load environment config');
-				require(envConf).call(this, app, callback);
-			}.bind(this));
-		}
-		else {
-			log.sys(' ... no environment config found!');
-		}
-		
-		//Load express.js
-		var expressFile = path.join(app.baseDir, 'server/express.js');
-		if (fileExists(expressFile)) {
-			jobs.push(function(callback) {
-				log.sys(' ... load express config');
-				require(expressFile).call(this, app, callback);
-			}.bind(this));
-		}
+  //Log requests to console?
+  if (true) {
+    app.use(require('logtopus').express({
+      logLevel: this.conf.logLevel
+    }));
+  }
 
-		//Load database.js
-		var databaseFile = path.join(app.baseDir, 'server/database.js');
-		if (fileExists(databaseFile)) {
-			jobs.push(function(callback) {
-				log.sys(' ... load database config');
-				require(databaseFile).call(this, app, callback);
-			}.bind(this));
-		}
+  let cbDeprecated = function() {
+    log.warn('Using callback is deprecated! Simply return a promise if method is async');
+  }
 
-		//Load routes
-		if (opts.disableRoutes !== true) {
-			var routesDir = path.join(this.baseDir, 'routes/**/*.js');
-			var files = glob.sync(routesDir);
-			if (files.length !== 0) {
-				files.forEach(function(file) {
-					jobs.push(function(callback) {
-						log.sys(' ... load route file', file);
-						require(file).call(this, app, callback);
-					}.bind(this));
-				}.bind(this));
-			}
-			else if (this.routes.length === 0) {
-				log.sys(' ... no routes found');
-			}
-		}
+  co(function* () {
+    // Load Environment configuration
+    let envConf = path.join(this.baseDir, 'server/env', app.get('env') + '.js');
+    if (fileExists(envConf)) {
+      log.sys(' ... load environment config');
+      let task = require(envConf).call(this, app, cbDeprecated);
+      if (task && task.then) {
+        yield task;
+      }
+    }
+    else {
+      log.sys(' ... no environment config found!');
+    }
 
-		//Load custom routes
-		if (this.routes && this.routes.length) {
-			jobs.push(function(callback) {
-				this.routes.forEach(function(route) {
-					log.sys(' ... add route', ' '.repeat(6 - route.method.length) + route.method + ' ' + route.route);
-					var args = [route.route].concat(route.funcs);
-					this.app[route.method.toLowerCase()].apply(this.app, args);
-				}, this);
+    //Load express.js
+    let expressFile = path.join(app.baseDir, 'server/express.js');
+    if (fileExists(expressFile)) {
+      log.sys(' ... load express config');
+      let task = require(expressFile).call(this, app, cbDeprecated);
+      if (task && task.then) {
+        yield task;
+      }
+    }
 
-				callback();
-			}.bind(this));
-		}
+    //Load database.js
+    let databaseFile = path.join(app.baseDir, 'server/database.js');
+    if (fileExists(databaseFile)) {
+        log.sys(' ... load database config');
+        let task = require(databaseFile).call(this, app, cbDeprecated);
+        if (task && task.then) {
+          yield task;
+        }
+    }
 
-		//Load API view
-		if (this.apiRoute) {
-			jobs.push(function(callback) {
-				log.sys(' ... register api route', this.apiRoute);
-				require(path.join(__dirname, 'routes/api')).call(this, app, callback);
-			}.bind(this));
-		}
+    //Load routes
+    if (opts.disableRoutes !== true) {
+      let routesDir = path.join(this.baseDir, 'routes/**/*.js');
+      let files = glob.sync(routesDir);
+      this.routerFiles = files;
+      if (files.length !== 0) {
+        for (let file of files) {
+          log.sys(' ... load route file', file);
+          let task = require(file).call(this, app, cbDeprecated);
+          if (task && task.then) {
+            yield task;
+          }
+        }
+      }
+      else if (this.routes.length === 0) {
+        log.sys(' ... no routes found');
+      }
+    }
 
-		//Enable user tracking
-		if (this.userTracking) {
-			this.trackingRoute = this.trackingRoute || '/track';
-			jobs.push(function(callback) {
-				log.sys(' ... track user to:', this.userTracking);
-				require(path.join(__dirname, 'routes/tracking')).call(this, app, callback);
-			}.bind(this));
-		}
+    //Load custom routes
+    if (this.routes && this.routes.length) {
+      this.routes.forEach(function(route) {
+        log.sys(' ... add route', ' '.repeat(6 - route.method.length) + route.method + ' ' + route.route);
+        let args = [route.route].concat(route.funcs);
+        this.app[route.method.toLowerCase()].apply(this.app, args);
+      }, this);
+    }
 
-		
-		async.series(jobs, function(err, result) {
-			if (cbDone) {
-				return;
-			}
+    //Load API view
+    if (this.apiRoute) {
+      log.sys(' ... register api route', this.apiRoute);
+      let task = require(path.join(__dirname, 'routes/api')).call(this, app);
+      if (task && task.then) {
+        yield task;
+      }
+    }
 
-			cbDone = true;
+    //Enable user tracking
+    if (this.userTracking) {
+      this.trackingRoute = this.trackingRoute || '/track';
+      log.sys(' ... track user to:', this.userTracking);
+      let task = require(path.join(__dirname, 'routes/tracking')).call(this, app, cbDeprecated);
+      if (task && task.then) {
+        yield task;
+      }
+    }
+  }.bind(this)).then(result => {
+    app.use(function(err, req, res, next) {
+      log.error(err.stack);
+      res.status(500).send('Something broke!\n');
+    });
 
-			if (err) {
-				log.err('Can\'t boot the server.');
-				log.err((err.message || err));
-				console.error((err.message || err));
-				process.exit(1);
-				return;
-			}
+    if (opts.disableServer !== true) {
+      log.sys(' ... listening on port ', this.port);
+      log.sys('Server started successfull!');
+      app.listen(this.port);
+    }
 
-			app.use(function(err, req, res, next) {
-				console.error(err.stack);
-				res.status(500).send('Something broke!\n');
-			});
+    //Load init script
+    let initFile = path.join(app.baseDir, 'server/init.js');
+    if (fileExists(initFile)) {
+      require(initFile)(app, callback.bind(this, app));
+    }
+    else {
+      callback.call(this, app);
+    }
+  }).catch(err => {
+    log.error('Can\'t boot the server.');
+    log.error(err.stack || err);
+    process.exit(1);
+  });
+};
 
-			if (opts.disableServer !== true) {
-				log.sys(' ... listening on port ', this.port);
-				log.sys('Server started successfull!');
-				app.listen(this.port);
-			}
+/**
+ * Stopping express server
+ */
+ExpressServer.prototype.stop = function() {
+  log.sys('Stoping ' + this.name);
+};
 
-			//Load init script
-			var initFile = path.join(app.baseDir, 'server/init.js');
-			if (fileExists(initFile)) {
-				require(initFile)(app, callback.bind(this, app));
-			}
-			else {
-				
-				callback.call(this, app);
-			}
+/**
+ * Handle JSON result
+ */
+ExpressServer.prototype.handleJSONResult = function(err, data) {
+  if (err) {
+    log.err(err);
+    this.send(500, 'Something went wrong!');
+    return;
+  }
 
-		}.bind(this));
+  this.json(data);
+};
 
-		return app;	
-	};
+ExpressServer.prototype.requestLogger = function(req, res, next) {
+  var startTime = Date.now(),
+    logFile = this.requestLogFile,
+    ignoreContentTypes = this.requestLogIgnore.contentType;
 
-	/**
-	 * Stopping express server
-	 */
-	ExpressServer.prototype.stop = function() {
-		log.sys('Stoping ' + this.name);
-	};
+  var LogIt = function() {
+    var parseTime = Date.now() - startTime,
+      contentType = res.get('Content-Type') || '';
 
-	/**
-	 * Handle JSON result
-	 */
-	ExpressServer.prototype.handleJSONResult = function(err, data) {
-		if (err) {
-			log.err(err);
-			this.send(500, 'Something went wrong!');
-			return;
-		}
+    res.removeListener('finish', LogIt);
 
-		this.json(data);
-	};
+    if (ignoreContentTypes && ignoreContentTypes.indexOf(contentType) !== -1) {
+      return;
+    }
 
-	ExpressServer.prototype.requestLogger = function(req, res, next) {
-		var startTime = Date.now(),
-			logFile = this.requestLogFile,
-			ignoreContentTypes = this.requestLogIgnore.contentType;
+    var data = '[' + (new Date()).toString() + ']';
+    data += ' ' + res.statusCode;
+    data += ' ' + parseTime + 'ms';
+    data += ' ' + req.method;
+    data += ' "' + req.protocol;
+    data += '://' + req.get('host');
+    data += req.originalUrl + '"';
+    data += ' "' + contentType + '"';
+    data += ' "' + req.get('user-agent') + '"';
+    data += ' "' + req.get('referer') + '"';
+    if (req.sessionID) {
+      data += ' (' + req.sessionID + ')';
+    }
+    data += '\n';
 
-		var LogIt = function() {
-			var parseTime = Date.now() - startTime,
-				contentType = res.get('content-type');
+    fs.appendFile(logFile, data, function() {});
+  };
 
-			res.removeListener('finish', LogIt);
+  res.on('finish', LogIt);
 
-			if (ignoreContentTypes && ignoreContentTypes.indexOf(contentType) !== -1) {
-				return;
-			}
+  next();
+};
 
-			var data = '[' + (new Date()).toString() + ']';
-			data += ' ' + res.statusCode;
-			data += ' ' + parseTime + 'ms';
-			data += ' ' + req.method;
-			data += ' "' + req.protocol;
-			data += '://' + req.get('host');
-			data += req.originalUrl + '"';
-			data += ' "' + contentType + '"';
-			data += ' "' + req.get('user-agent') + '"';
-			data += ' "' + req.get('referer') + '"';
-			if (req.sessionID) {
-				data += ' (' + req.sessionID + ')';
-			}
-			data += '\n';
+ExpressServer.prototype.getConfig = function(confDir) {
+  this._confFiles = [];
+  var confFile = (process.env.NODE_ENV || 'development') + '.json';
+  if (confDir) {
+    this._confFiles.push(path.join(confDir, confFile));
+  }
 
-			fs.appendFile(logFile, data, function() {});
-		};
+  this._confFiles.push(path.join(this.baseDir, 'config', confFile));
+  this._confFiles.push(path.join(this.baseDir, '../config', confFile));
 
-		res.on('finish', LogIt);
+  for (var i = 0, len = this._confFiles.length; i < len; i++) {
+    if (fs.existsSync(this._confFiles[i])) {
+      this.confFile = this._confFiles[i];
+      return require(this._confFiles[i]);
+    }
+  }
 
-		next();
-	};
+  return {};
+};
 
-	ExpressServer.prototype.getConfig = function(confDir) {
-		this._confFiles = [];
-		var confFile = (process.env.NODE_ENV || 'development') + '.json';
-		if (confDir) {
-			this._confFiles.push(path.join(confDir, confFile));
-		}
+ExpressServer.prototype.addRoute = function(method, route, fn) {
+  var funcs = Array.prototype.slice.call(arguments, 2);
+  this.routes.push({
+    method: method,
+    route: route,
+    funcs: funcs
+  });
+};
 
-		this._confFiles.push(path.join(this.baseDir, 'config', confFile));
-		this._confFiles.push(path.join(this.baseDir, '../config', confFile));
-
-		for (var i = 0, len = this._confFiles.length; i < len; i++) {
-			if (fs.existsSync(this._confFiles[i])) {
-				this.confFile = this._confFiles[i];
-				return require(this._confFiles[i]);
-			}
-		}
-
-		return {};
-	};
-
-	ExpressServer.prototype.addRoute = function(method, route, fn) {
-		var funcs = Array.prototype.slice.call(arguments, 2);
-		this.routes.push({
-			method: method,
-			route: route,
-			funcs: funcs
-		});
-	};
-
-	return ExpressServer;
-
-}();
+module.exports = ExpressServer;
