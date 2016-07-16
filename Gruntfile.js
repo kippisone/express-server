@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
     'use strict';
-    
+
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -27,8 +27,8 @@ module.exports = function(grunt) {
                 indentation: '    ', //default: '  ' (two spaces)
                 tagName: 'v<%= version %>', //default: '<%= version %>'
                 commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
-                tagMessage: 'Tagging release v<%= version %>', //default: 'Version <%= version %>',
-                beforeRelease: ['build']
+                tagMessage: 'Tagging release v<%= version %>' //default: 'Version <%= version %>',
+                // beforeRelease: ['build']
             }
         },
         tagrelease: {
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
             commit:  true,
             message: 'Release %version%',
             prefix:  'v',
-            annotate: false,
+            annotate: false
         }
     });
 
