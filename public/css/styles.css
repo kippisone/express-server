@@ -6,42 +6,47 @@ body {
 .route {
 	border: 1px solid #c0c0c0;
 	border-radius: 5px;
-	background-color: #ddd;
+	background-color: #eee;
 	margin-bottom: 5px;
 }
 
 .method {
 	display: inline-block;
-	width: 55px;
+	/*width: 55px;*/
 	text-transform: uppercase;
-	font-size: 18px;
+	font-size: 14px;
 	padding: 3px;
 	color: #333;
-
+	font-weight: bold;
+	border-radius: 5px;
+	margin: 3px;
+	position: absolute;
 }
 
 .path {
 	display: inline-block;
 	vertical-align: middle;
 	color: #333;
+	font-size: 14px;
+	margin: 5px 0 5px 65px;
 }
 
-.method-get {
+.method-GET {
 	background-color: #0755FF;
 	color: #fff;
 }
 
-.method-post {
+.method-POST {
 	background-color: #006B2B;
 	color: #fff;
 }
 
-.method-put {
+.method-PUT {
 	background-color: #6500BE;
 	color: #fff;
 }
 
-.method-delete {
+.method-DELETE {
 	background-color: #A60100;
 	color: #fff;
 	letter-spacing: -1px;
@@ -71,8 +76,10 @@ body {
 .info {
 	display: block;
 	vertical-align: middle;
-	background-color: #E9E9E9;
+	background-color: #f6f6f6;
 	padding: 5px;
+	margin: 5px 5px 5px 65px;
+	border-radius: 5px;
 }
 
 .authentication {

@@ -1,8 +1,8 @@
 var path = require('path');
 
-module.exports = function(app, done) {
+module.exports = function(app) {
     'use strict';
-    
+
     var Tracker = require('../modules/tracker');
 
     var tracker = new Tracker(this.userTracking);
@@ -22,6 +22,4 @@ module.exports = function(app, done) {
     app.get('/express-server/js/tracker.js', function(req, res) {
         res.sendFile(path.join(__dirname, '../views/js/tracker.js'));
     });
-
-    done();
 };
