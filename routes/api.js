@@ -33,7 +33,7 @@ module.exports = function(app) {
 		});
 	};
 
-	app.get(this.apiRoute, function(req, res) {
+	app.get(this.apiInfo, function(req, res) {
 		readFile(path.join(__dirname, '../views/api.fire'), { encoding: 'utf8' }, function(err, source) {
 			if (err) {
 				throw err;

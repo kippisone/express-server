@@ -42,6 +42,7 @@ var server = new ExpressServer({
 	            A String is interpreted as the log file path.
 	            (Default: <baseDir>/log/request.log). Request logging is disabled
 	            by default
+	apiInfo    Enables api info. Set a path where the infos should be shown
 
 ##Setting up env configurations
 

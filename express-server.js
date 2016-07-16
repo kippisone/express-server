@@ -57,7 +57,7 @@ let ExpressServer = function(conf) {
   this.name = conf.name || 'Express server';
 
   //API route (Disabled by default)
-  this.apiRoute = conf.apiRoute || null;
+  this.apiInfo = conf.apiInfo || null;
 
   //Request logging config
   if (conf.requestLog) {
@@ -220,8 +220,8 @@ ExpressServer.prototype.start = function(opts, callback) {
     }
 
     //Load API view
-    if (this.apiRoute) {
-      log.sys(' ... register api route', this.apiRoute);
+    if (this.apiInfo) {
+      log.sys(' ... register api route', this.apiInfo);
       let task = require(path.join(__dirname, 'routes/api')).call(this, app);
       if (task && task.then) {
         yield task;
