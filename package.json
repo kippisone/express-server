@@ -13,7 +13,7 @@
     "rest",
     "restful"
   ],
-  "author": "Andi Heinkelein <andi.oxidant@noname-media.com>",
+  "author": "Andi Heinkelein <andifeind@noname-media.com>",
   "license": "MIT",
   "dependencies": {
     "async": "^1.5.0",
@@ -31,5 +31,16 @@
   "devDependencies": {
     "grunt-bumpup": "^0.6.3",
     "grunt-contrib-jshint": "^1.0.0"
-  }
+  },
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Andifeind/express-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Andifeind/express-server/issues"
+  },
+  "homepage": "https://github.com/Andifeind/express-server#readme"
 }
