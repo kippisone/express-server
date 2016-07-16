@@ -1,6 +1,6 @@
 {
   "name": "express-server",
-  "version": "0.5.8",
+  "version": "0.6.0",
   "description": "A easy API server based on express",
   "main": "express-server.js",
   "scripts": {
