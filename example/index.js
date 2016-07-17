@@ -8,7 +8,7 @@ var server = new ExpressServer({
     baseDir: __dirname,
     userTracking: './log/tracking.log',
 		logLevel: 'debug',
-		apiRoute: '/api/info'
+		apiInfo: '/api/info'
 });
 
 server.start(function() {
