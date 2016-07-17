@@ -87,6 +87,14 @@ let ExpressServer = function(conf) {
   app.logger = log;
   app.conf = conf;
   this.app = app;
+
+  this.__context = function() {
+    log.warn('Using callback is deprecated! Simply return a promise if method is async');
+  };
+};
+
+ExpressServer.prototype.setContext = function (ctx) {
+  this.__context = ctx;
 };
 
 /**
@@ -153,16 +161,12 @@ ExpressServer.prototype.start = function(opts, callback) {
     }));
   }
 
-  let cbDeprecated = function() {
-    log.warn('Using callback is deprecated! Simply return a promise if method is async');
-  }
-
   co(function* () {
     // Load Environment configuration
     let envConf = path.join(this.baseDir, 'server/env', app.get('env') + '.js');
     if (fileExists(envConf)) {
       log.sys(' ... load environment config');
-      let task = require(envConf).call(this, app, cbDeprecated);
+      let task = require(envConf).call(this, app, this.__context);
       if (task && task.then) {
         yield task;
       }
@@ -175,7 +179,7 @@ ExpressServer.prototype.start = function(opts, callback) {
     let expressFile = path.join(app.baseDir, 'server/express.js');
     if (fileExists(expressFile)) {
       log.sys(' ... load express config');
-      let task = require(expressFile).call(this, app, cbDeprecated);
+      let task = require(expressFile).call(this, app, this.__context);
       if (task && task.then) {
         yield task;
       }
@@ -185,7 +189,7 @@ ExpressServer.prototype.start = function(opts, callback) {
     let databaseFile = path.join(app.baseDir, 'server/database.js');
     if (fileExists(databaseFile)) {
         log.sys(' ... load database config');
-        let task = require(databaseFile).call(this, app, cbDeprecated);
+        let task = require(databaseFile).call(this, app, this.__context);
         if (task && task.then) {
           yield task;
         }
@@ -199,7 +203,7 @@ ExpressServer.prototype.start = function(opts, callback) {
       if (files.length !== 0) {
         for (let file of files) {
           log.sys(' ... load route file', file);
-          let task = require(file).call(this, app, cbDeprecated);
+          let task = require(file).call(this, app, this.__context);
           if (task && task.then) {
             yield task;
           }
@@ -232,7 +236,7 @@ ExpressServer.prototype.start = function(opts, callback) {
     if (this.userTracking) {
       this.trackingRoute = this.trackingRoute || '/track';
       log.sys(' ... track user to:', this.userTracking);
-      let task = require(path.join(__dirname, 'routes/tracking')).call(this, app, cbDeprecated);
+      let task = require(path.join(__dirname, 'routes/tracking')).call(this, app);
       if (task && task.then) {
         yield task;
       }
